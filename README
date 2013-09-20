@@ -1,0 +1,23 @@
+Anthony Elliott
+Networking
+9/20/2013
+
+Files:
+ - chat.c -- source code that combines the simple-talk client and server
+ - Makefile -- used to compile the source code
+ - README -- this file
+
+Compilation Instructions:
+Navigate to correct directory after unzipping the files and run `make`.
+This will generate an executable called chat.
+There are some warnings from the compiler but no errrors.
+
+How to run:
+Type `./chat` to run the executable in server mode.
+Type `./chat -s hostname -p 1234` where hostname is the hostname or IP
+address of the server and 1234 is the port number.
+
+Challenges:
+My main challenge was having to think about the low-level things again.
+It was also difficult to work in a different environment, but is a
+useful skill to know.
