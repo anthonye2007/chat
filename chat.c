@@ -1,3 +1,10 @@
+/*
+ * Anthony Elliott
+ * Networking
+ * University of Northern Iowa
+ * 9/20/2013
+ */
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
