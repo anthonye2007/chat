@@ -13,8 +13,9 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
+#include "chat.h"
 
-#define SERVER_PORT 7609 
+#define SERVER_PORT 7733 
 #define MAX_PENDING 5
 #define MAX_LINE 256
 
