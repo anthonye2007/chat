@@ -88,6 +88,9 @@ void client(char * argv[]) {
         int s;
         int len;
 	long int portNum;
+	struct chat_packet packet;
+
+	packet.version = 2;
 
 	fprintf(stdout, "Connecting to server... ");
 
