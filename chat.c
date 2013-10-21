@@ -38,6 +38,11 @@ void server() {
         char buf[MAX_LINE];
         int len;
         int s, new_s;
+	
+	/* print connection info */
+	//printf("Server IP: %s", ipAddress);
+	fprintf(stdout, "Server port: %d\n", SERVER_PORT);	
+
         /* build address data structure */
         bzero((char *)&sin, sizeof(sin));
         sin.sin_family = AF_INET;
