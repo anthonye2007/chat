@@ -89,6 +89,8 @@ void client(char * argv[]) {
         int len;
 	long int portNum;
 
+	fprintf(stdout, "Connecting to server... ");
+
 	/* parse args */
 	if (strcmp(argv[1], "-s") == 0) {
 		host = argv[2];
@@ -122,6 +124,9 @@ void client(char * argv[]) {
                 close(s);
                 exit(1);
         }
+
+	fprintf(stdout, "Connected!\nYou send first.\n");
+
 	/* main loop: get and send lines of text */
         while (fgets(buf, sizeof(buf), stdin)) {
                 buf[MAX_LINE-1] = '\0';
