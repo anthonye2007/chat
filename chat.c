@@ -50,9 +50,6 @@ void server() {
 	/* print connection info */
 	ip_addr = getIP();
 	fprintf(stdout, "Waiting for connection on %s port %d\n", ip_addr, SERVER_PORT);
-	//fprintf(stdout, "Listening on port %d\n", SERVER_PORT);	
-	//fprintf(stdout, "IP address: %s\n", ip_addr);
-	//printf("Server IP: %s", ipAddress);
 
         /* build address data structure */
         bzero((char *)&sin, sizeof(sin));
