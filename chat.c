@@ -27,7 +27,7 @@
 
 void server();
 void client(char * argv[]);
-void getIP();
+char* getIP();
 
 int main(int argc, char * argv[])
 {
@@ -45,10 +45,12 @@ void server() {
         char buf[MAX_LINE];
         int len;
         int s, new_s;
+	char * ip_addr;
 	
 	/* print connection info */
 	fprintf(stdout, "Listening on port %d\n", SERVER_PORT);	
-	getIP();
+	ip_addr = getIP();
+	fprintf(stdout, "IP address: %s\n", ip_addr);
 	//printf("Server IP: %s", ipAddress);
 
         /* build address data structure */
@@ -134,7 +136,7 @@ void client(char * argv[]) {
         }
 }
 
-void getIP() {
+char* getIP() {
 	char hostname[128];
 	struct hostent *he;
 	struct in_addr my_in_addr;
@@ -145,10 +147,12 @@ void getIP() {
 	
 	if (he == NULL) {
 		herror("gethostbyhame");
+		return NULL;
 	}
 
 	my_in_addr = *(struct in_addr*)he->h_addr;
 	
-	printf("IP address: %s\n", inet_ntoa(my_in_addr));
+	//printf("IP address: %s\n", inet_ntoa(my_in_addr));
+	return inet_ntoa(my_in_addr);
 }
 
