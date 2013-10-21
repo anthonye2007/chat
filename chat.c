@@ -14,6 +14,12 @@
 #include <strings.h>
 #include <string.h>
 #include "chat.h"
+#include <sys/unistd.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define SERVER_PORT 7733 
 #define MAX_PENDING 5
@@ -21,6 +27,7 @@
 
 void server();
 void client(char * argv[]);
+void getIP();
 
 int main(int argc, char * argv[])
 {
@@ -40,8 +47,9 @@ void server() {
         int s, new_s;
 	
 	/* print connection info */
+	fprintf(stdout, "Listening on port %d\n", SERVER_PORT);	
+	getIP();
 	//printf("Server IP: %s", ipAddress);
-	fprintf(stdout, "Server port: %d\n", SERVER_PORT);	
 
         /* build address data structure */
         bzero((char *)&sin, sizeof(sin));
@@ -62,11 +70,12 @@ void server() {
         /* wait for connection, then receive and print text */
         while(1) {
                 if ((new_s = accept(s, (struct sockaddr *)&sin, &len)) < 0) {
-                perror("simplex-talk: accept");
-                exit(1);
-        }
-        while (len = recv(new_s, buf, sizeof(buf), 0))
-                fputs(buf, stdout);
+                	perror("simplex-talk: accept");
+                	exit(1);
+        	}
+        	while ((len = recv(new_s, buf, sizeof(buf), 0))) {
+                	fputs(buf, stdout);
+		}
                 close(new_s);
         }
 }
@@ -124,3 +133,22 @@ void client(char * argv[]) {
 		}
         }
 }
+
+void getIP() {
+	char hostname[128];
+	struct hostent *he;
+	struct in_addr my_in_addr;
+
+	gethostname(hostname, sizeof hostname);
+	
+	he = gethostbyname(hostname);
+	
+	if (he == NULL) {
+		herror("gethostbyhame");
+	}
+
+	my_in_addr = *(struct in_addr*)he->h_addr;
+	
+	printf("IP address: %s\n", inet_ntoa(my_in_addr));
+}
+
