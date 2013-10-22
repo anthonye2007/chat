@@ -27,7 +27,7 @@
 
 void server();
 void client(char * argv[]);
-char* getIP();
+struct in_addr getIP();
 
 int main(int argc, char * argv[])
 {
@@ -48,7 +48,7 @@ void server() {
 	char * ip_addr;
 	
 	/* print connection info */
-	ip_addr = getIP();
+	ip_addr = inet_ntoa(getIP());
 	fprintf(stdout, "Waiting for connection on %s port %d\n", ip_addr, SERVER_PORT);
 
         /* build address data structure */
@@ -129,9 +129,12 @@ void client(char * argv[]) {
         }
 
 	fprintf(stdout, "Connected!\nYou send first.\n");
+	fprintf(stdout, "IP address: %s\n", inet_ntoa(sin.sin_addr));
 
 	/* main loop: get and send lines of text */
         while (fgets(buf, sizeof(buf), stdin)) {
+		packet.dest_addr = sin.sin_addr;
+
                 buf[MAX_LINE-1] = '\0';
                 len = strlen(buf) + 1;
 		if (len > 142) {
@@ -142,7 +145,7 @@ void client(char * argv[]) {
         }
 }
 
-char* getIP() {
+struct in_addr getIP() {
 	char hostname[128];
 	struct hostent *he;
 	struct in_addr my_in_addr;
@@ -151,14 +154,14 @@ char* getIP() {
 	
 	he = gethostbyname(hostname);
 	
-	if (he == NULL) {
+/*	if (he == NULL) {
 		herror("gethostbyhame");
-		return NULL;
-	}
+		return (struct in_addr)NULL;
+	}*/
 
 	my_in_addr = *(struct in_addr*)he->h_addr;
 	
 	//printf("IP address: %s\n", inet_ntoa(my_in_addr));
-	return inet_ntoa(my_in_addr);
+	return my_in_addr;
 }
 
