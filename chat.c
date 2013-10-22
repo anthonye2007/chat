@@ -90,7 +90,7 @@ void client(char * argv[]) {
 	long int portNum;
 	struct chat_packet packet;
 
-	packet.version = 2;
+	packet.version = htons(2);
 
 	fprintf(stdout, "Connecting to server... ");
 
