@@ -113,9 +113,10 @@ void server() {
 void client(char * argv[]) {
 	struct hostent *hp;
         struct sockaddr_in sin;
+        struct sockaddr_in socketToListen;
         char *host;
         char buf[MAX_LINE];
-        int s;
+        int s, s_listenNum, new_s;
         int len;
 	long int portNum;
 	struct chat_packet packet;
@@ -164,6 +165,23 @@ void client(char * argv[]) {
                 exit(1);
         }
 
+        /* build address data structure */
+        bzero((char *)&socketToListen, sizeof(socketToListen));
+        socketToListen.sin_family = AF_INET;
+        socketToListen.sin_addr.s_addr = INADDR_ANY;
+        socketToListen.sin_port = htons(SERVER_PORT);
+
+        /* setup passive open */
+        if ((s_listenNum = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+                perror("simplex-talk: socket");
+                exit(1);
+        }
+        if ((bind(s_listenNum, (struct sockaddr *)&socketToListen, sizeof(socketToListen))) < 0) {
+                perror("simplex-talk: bind");
+                exit(1);
+        }
+        listen(s_listenNum, MAX_PENDING);
+
 	fprintf(stdout, "Connected!\nYou send first.\n");
 	fprintf(stdout, "IP address: %s\n", inet_ntoa(sin.sin_addr));
 
@@ -182,6 +200,18 @@ void client(char * argv[]) {
                 	send(s, &packet, bytesInPacket + 1, 0);
 			strcpy(packet.data, emptyStr);
 		}
+
+		/* Recieve */
+        	if ((new_s = accept(s_listenNum, (struct sockaddr *)&socketToListen, &len)) < 0) {
+              		perror("simplex-talk: accept");
+			exit(1);
+        	}
+
+       		if ((len = recv(new_s, &packet, sizeof(packet), 0))) {
+                	fputs(packet.data, stdout);
+		}
+
+		close(new_s);
         }
 }
 
