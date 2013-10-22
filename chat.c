@@ -80,60 +80,58 @@ void server() {
         listen(s, MAX_PENDING);
 	fprintf(stdout, "Listen socket number: %d\n", s);
 
+        if ((new_s = accept(s, (struct sockaddr *)&sin, &len)) < 0) {
+                perror("simplex-talk: accept");
+                exit(1);
+        }
+	fprintf(stdout, "Found connection!\n");
+
         /* wait for connection, then receive and print text */
         while(1) {
-                if ((new_s = accept(s, (struct sockaddr *)&sin, &len)) < 0) {
-                	perror("simplex-talk: accept");
-                	exit(1);
-        	}
-		fprintf(stdout, "Found connection!\n");
-
 		/* Recieve */
-        	while ((len = recv(new_s, &packet, sizeof(packet), 0))) {
+        	if ((len = recv(new_s, &packet, sizeof(packet), 0))) {
 			fprintf(stdout, "Got new message\n");
                 	fputs(packet.data, stdout);
 
+                	//close(new_s);
 			fprintf(stdout, "Waiting to send\n");
-
-
-
-        /* build address data structure */
-        bzero((char *)&s_send, sizeof(s_send));
-        s_send.sin_family = AF_INET;
-	s_send.sin_addr = packet.src_addr;
-        s_send.sin_port = htons(SERVER_PORT);
-        /* active open */
-        if ((s_sendNum = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-                perror("simplex-talk: socket");
-                exit(1);
-        }
-	if (connect(s_sendNum, (struct sockaddr *)&s_send, sizeof(s_send)) < 0) {
-		perror("simplex-talk: connect");
-                close(s_sendNum);
-                exit(1);
-        }
-	fprintf(stdout, "Sending socket number: %d\n", s_sendNum);
-
-			/* Send */
-			if (fgets(buf, sizeof(buf), stdin)) {
-				packet.dest_addr = packet.src_addr;
-				packet.src_addr = getIP();
-
-                		buf[MAX_LINE-1] = '\0';
-		                len = strlen(buf) + 1;
-					if (len > 142) {
-						fprintf(stderr, "Error: limit messages to 140 characters\n");
-					} else {
-						strcpy(packet.data, emptyStr);
-						strcpy(packet.data, buf);
-						int bytesInPacket = 236;
-			                	send(new_s, &packet, bytesInPacket + 1, 0);
-						strcpy(packet.data, emptyStr);
-						fprintf(stdout, "Message sent\n");
-					}
-		        }
 		}
-                close(new_s);
+
+ 	       /* build address data structure */
+        	bzero((char *)&s_send, sizeof(s_send));
+        	s_send.sin_family = AF_INET;
+		s_send.sin_addr = packet.src_addr;
+        	s_send.sin_port = htons(SERVER_PORT);
+        	/* active open */
+        	if ((s_sendNum = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+                	perror("simplex-talk: socket");
+                	exit(1);
+        	}
+		if (connect(s_sendNum, (struct sockaddr *)&s_send, sizeof(s_send)) < 0) {
+			perror("simplex-talk: connect");
+                	close(s_sendNum);
+                	exit(1);
+        	}
+		fprintf(stdout, "Sending socket number: %d\n", s_sendNum);
+
+		/* Send */
+		if (fgets(buf, sizeof(buf), stdin)) {
+			packet.dest_addr = packet.src_addr;
+			packet.src_addr = getIP();
+
+                	buf[MAX_LINE-1] = '\0';
+		        len = strlen(buf) + 1;
+			if (len > 142) {
+				fprintf(stderr, "Error: limit messages to 140 characters\n");
+			} else {
+				strcpy(packet.data, emptyStr);
+				strcpy(packet.data, buf);
+				int bytesInPacket = 236;
+			        send(s_sendNum, &packet, bytesInPacket + 1, 0);
+				strcpy(packet.data, emptyStr);
+				fprintf(stdout, "Message sent\n");
+			}
+		}
         }
 }
 
