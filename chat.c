@@ -134,6 +134,7 @@ void client(char * argv[]) {
 	/* main loop: get and send lines of text */
         while (fgets(buf, sizeof(buf), stdin)) {
 		packet.dest_addr = sin.sin_addr;
+		packet.src_addr = getIP();
 
                 buf[MAX_LINE-1] = '\0';
                 len = strlen(buf) + 1;
