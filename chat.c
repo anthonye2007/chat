@@ -23,7 +23,7 @@
 
 #define SERVER_PORT 7733 
 #define MAX_PENDING 5
-#define MAX_LINE 256
+#define MAX_LINE 140
 
 void server();
 void client(char * argv[]);
@@ -141,6 +141,7 @@ void client(char * argv[]) {
 		if (len > 142) {
 			fprintf(stderr, "Error: limit messages to 140 characters\n");
 		} else {
+			strcpy(packet.data, buf);
                 	send(s, buf, len, 0);
 		}
         }
