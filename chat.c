@@ -51,6 +51,10 @@ void server() {
 	buf[MAX_LINE-1] = '\0';
 
 	char emptyStr[MAX_LINE];
+	for (int i = 0; i < MAX_LINE-1; i++) {
+		emptyStr[i] = 0;
+	}
+
 	emptyStr[MAX_LINE-1] = '\0';
 
 	/* print connection info */
@@ -117,6 +121,9 @@ void client(char * argv[]) {
 	struct chat_packet packet;
 
 	char emptyStr[MAX_LINE];
+	for (int i = 0; i < MAX_LINE-1; i++) {
+		emptyStr[i] = 0;
+	}
 	emptyStr[MAX_LINE-1] = '\0';
 
 	packet.version = htons(2);
