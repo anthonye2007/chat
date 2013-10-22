@@ -42,11 +42,11 @@ int main(int argc, char * argv[])
 
 void server() {
 	struct sockaddr_in sin;
-        char buf[MAX_LINE];
         int len;
         int s, new_s;
 	char * ip_addr;
-	
+	struct chat_packet packet;
+
 	/* print connection info */
 	ip_addr = inet_ntoa(getIP());
 	fprintf(stdout, "Waiting for connection on %s port %d\n", ip_addr, SERVER_PORT);
@@ -73,8 +73,8 @@ void server() {
                 	perror("simplex-talk: accept");
                 	exit(1);
         	}
-        	while ((len = recv(new_s, buf, sizeof(buf), 0))) {
-                	fputs(buf, stdout);
+        	while ((len = recv(new_s, &packet, sizeof(packet), 0))) {
+                	fputs(packet.data, stdout);
 		}
                 close(new_s);
         }
@@ -89,6 +89,9 @@ void client(char * argv[]) {
         int len;
 	long int portNum;
 	struct chat_packet packet;
+	char emptyStr[MAX_LINE];
+
+	emptyStr[MAX_LINE-1] = '\0';
 
 	packet.version = htons(2);
 
@@ -142,7 +145,9 @@ void client(char * argv[]) {
 			fprintf(stderr, "Error: limit messages to 140 characters\n");
 		} else {
 			strcpy(packet.data, buf);
-                	send(s, buf, len, 0);
+			int bytesInPacket = 236;
+                	send(s, &packet, bytesInPacket + 1, 0);
+			strcpy(packet.data, emptyStr);
 		}
         }
 }
