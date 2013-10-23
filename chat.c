@@ -2,7 +2,7 @@
  * Anthony Elliott
  * Networking
  * University of Northern Iowa
- * 9/20/2013
+ * 9/23/2013 (v 2.0)
  */
 
 #include <stdio.h>
@@ -42,9 +42,8 @@ int main(int argc, char * argv[])
 
 void server() {
 	struct sockaddr_in sin;
-	struct sockaddr_in s_send;
         int len;
-        int s, new_s, s_sendNum;
+        int s, new_s;
 	char * ip_addr;
 	struct chat_packet packet;
 
@@ -93,26 +92,8 @@ void server() {
 			fprintf(stdout, "Got new message\n");
                 	fputs(packet.data, stdout);
 
-                	//close(new_s);
 			fprintf(stdout, "Waiting to send\n");
 		}
-
- 	       /* build address data structure */
-        	bzero((char *)&s_send, sizeof(s_send));
-        	s_send.sin_family = AF_INET;
-		s_send.sin_addr = packet.src_addr;
-        	s_send.sin_port = htons(SERVER_PORT);
-        	/* active open */
-        	if ((s_sendNum = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-                	perror("simplex-talk: socket");
-                	exit(1);
-        	}
-		if (connect(s_sendNum, (struct sockaddr *)&s_send, sizeof(s_send)) < 0) {
-			perror("simplex-talk: connect");
-                	close(s_sendNum);
-                	exit(1);
-        	}
-		fprintf(stdout, "Sending socket number: %d\n", s_sendNum);
 
 		/* Send */
 		if (fgets(buf, sizeof(buf), stdin)) {
@@ -127,7 +108,8 @@ void server() {
 				strcpy(packet.data, emptyStr);
 				strcpy(packet.data, buf);
 				int bytesInPacket = 236;
-			        send(s_sendNum, &packet, bytesInPacket + 1, 0);
+				fprintf(stdout, "Sending message to %s\n", inet_ntoa(packet.dest_addr));
+			        send(new_s, &packet, bytesInPacket + 1, 0);
 				strcpy(packet.data, emptyStr);
 				fprintf(stdout, "Message sent\n");
 			}
