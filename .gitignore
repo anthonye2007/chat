@@ -1,4 +1,6 @@
 chat
 iptest
 checksum
+*.o
+*.save
 
