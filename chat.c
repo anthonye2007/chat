@@ -77,25 +77,26 @@ void server() {
                 exit(1);
         }
         listen(s, MAX_PENDING);
-	fprintf(stdout, "Listen socket number: %d\n", s);
 
         if ((new_s = accept(s, (struct sockaddr *)&sin, &len)) < 0) {
                 perror("simplex-talk: accept");
                 exit(1);
         }
+
 	fprintf(stdout, "Found connection!\n");
 
-        /* wait for connection, then receive and print text */
         while(1) {
 		/* Recieve */
+		fprintf(stdout, "Waiting to receive\n");
+
         	if ((len = recv(new_s, &packet, sizeof(packet), 0))) {
 			fprintf(stdout, "Got new message\n");
                 	fputs(packet.data, stdout);
-
-			fprintf(stdout, "Waiting to send\n");
 		}
 
 		/* Send */
+		fprintf(stdout, "Waiting to send\n");
+
 		if (fgets(buf, sizeof(buf), stdin)) {
 			packet.dest_addr = packet.src_addr;
 			packet.src_addr = getIP();
@@ -109,8 +110,9 @@ void server() {
 				strcpy(packet.data, buf);
 				int bytesInPacket = 236;
 				fprintf(stdout, "Sending message to %s\n", inet_ntoa(packet.dest_addr));
+				fprintf(stdout, "Sending message from %s", inet_ntoa(packet.src_addr));
 			        send(new_s, &packet, bytesInPacket + 1, 0);
-				strcpy(packet.data, emptyStr);
+				//strcpy(packet.data, emptyStr);
 				fprintf(stdout, "Message sent\n");
 			}
 		}
@@ -177,11 +179,11 @@ void client(char * argv[]) {
 
 	/* main loop: get and send lines of text */
         while (1) {
-		fprintf(stdout, "Start of loop\n");
+		fprintf(stdout, "Waiting to send\n");
 
 		/* Send */
 		if (fgets(buf, sizeof(buf), stdin)) {
-			fprintf(stdout, "Caught input\n");
+			//fprintf(stdout, "Caught input\n");
 			packet.dest_addr = sin.sin_addr;
 			packet.src_addr = getIP();
 
@@ -190,12 +192,13 @@ void client(char * argv[]) {
 			if (len > 142) {
 				fprintf(stderr, "Error: limit messages to 140 characters\n");
 			} else {
-				fprintf(stdout, "Message caught\n");
+				//fprintf(stdout, "Message caught\n");
 				strcpy(packet.data, buf);
-				int bytesInPacket = 236;
-                		send(s, &packet, bytesInPacket + 1, 0);
+				//int bytesInPacket = 236;
+				fprintf(stdout, "Packet bytes: %lu\n", sizeof(packet));
+                		send(s, &packet, sizeof(packet), 0);
 				strcpy(packet.data, emptyStr);
-				fprintf(stdout, "Message sent\n");
+				//fprintf(stdout, "Message sent\n");
 			}
 		}
 
@@ -206,7 +209,7 @@ void client(char * argv[]) {
                 	fputs(packet.data, stdout);
 		}
 
-		close(s);
+		//close(s);
         }
 }
 
