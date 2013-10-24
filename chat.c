@@ -205,6 +205,8 @@ void client(char * argv[]) {
 				u_short checkData = cksum((u_short *)packet.data, 1);
 				u_short checksum = checkVersion + checkDestIp + checkSrcIp + checkData;
 				fprintf(stdout, "Checksum: 0x%x\n", checksum);
+				packet.checksum = htons(checksum);
+
                 		send(s, &packet, sizeof(packet), 0);
 
 				strcpy(packet.data, emptyStr);
