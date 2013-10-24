@@ -92,6 +92,20 @@ void server() {
         	if ((len = recv(new_s, &packet, sizeof(packet), 0))) {
 			fprintf(stdout, "Friend: ");
                 	fputs(packet.data, stdout);
+			u_short prev_checksum = ntohs(packet.checksum);
+			//fprintf(stdout, "Previous checksum: 0x%x\n", prev_checksum);
+
+			char versionStr[15] = "";
+			sprintf(versionStr, "%d", ntohs(packet.version));
+			u_short checkVersion = cksum((u_short *)versionStr, 1);
+			u_short checkDestIp = cksum((u_short *)inet_ntoa(packet.dest_addr), 1);
+			u_short checkSrcIp = cksum((u_short *)inet_ntoa(packet.src_addr), 1);
+			u_short checkData = cksum((u_short *)packet.data, 1);
+			u_short checksum = checkVersion + checkDestIp + checkSrcIp + checkData;
+			if (prev_checksum != checksum) {
+				fprintf(stderr, "[ERROR: checksum does not match!]");
+			}
+			//fprintf(stdout, "Calculated checksum: 0x%x\n", checksum);
 		}
 
 		fprintf(stdout, "You: ");
@@ -107,6 +121,18 @@ void server() {
 			} else {
 				strcpy(packet.data, emptyStr);
 				strcpy(packet.data, buf);
+
+
+				char versionStr[15] = "";
+				sprintf(versionStr, "%d", ntohs(packet.version));
+				u_short checkVersion = cksum((u_short *)versionStr, 1);
+				u_short checkDestIp = cksum((u_short *)inet_ntoa(packet.dest_addr), 1);
+
+				u_short checkSrcIp = cksum((u_short *)inet_ntoa(packet.src_addr), 1);
+
+				u_short checkData = cksum((u_short *)packet.data, 1);
+				u_short checksum = checkVersion + checkDestIp + checkSrcIp + checkData;
+				packet.checksum = htons(checksum);
 
 			        send(new_s, &packet, sizeof(packet), 0);
 
@@ -190,11 +216,6 @@ void client(char * argv[]) {
 			} else {
 				strcpy(packet.data, buf);
 
-				/* Calculate checksum */
-				// need version, dest ip, src ip, data
-			//char version[strlen(packet.version)] = packet.version;
-				//char setup[255] = strcat(packet.version, strcat(inet_ntoa(packet.dest_addr), strcat(inet_ntoa(packet.src_addr), packet.data)));
-
 				char versionStr[15] = "";
 				sprintf(versionStr, "%d", ntohs(packet.version));
 				u_short checkVersion = cksum((u_short *)versionStr, 1);
@@ -204,7 +225,6 @@ void client(char * argv[]) {
 
 				u_short checkData = cksum((u_short *)packet.data, 1);
 				u_short checksum = checkVersion + checkDestIp + checkSrcIp + checkData;
-				fprintf(stdout, "Checksum: 0x%x\n", checksum);
 				packet.checksum = htons(checksum);
 
                 		send(s, &packet, sizeof(packet), 0);
@@ -217,9 +237,20 @@ void client(char * argv[]) {
        		if ((len = recv(s, &packet, sizeof(packet), 0))) {
 			fprintf(stdout, "Friend: ");	
                 	fputs(packet.data, stdout);
-		}
 
-		//close(s);
+			u_short prev_checksum = ntohs(packet.checksum);
+
+			char versionStr[15] = "";
+			sprintf(versionStr, "%d", ntohs(packet.version));
+			u_short checkVersion = cksum((u_short *)versionStr, 1);
+			u_short checkDestIp = cksum((u_short *)inet_ntoa(packet.dest_addr), 1);
+			u_short checkSrcIp = cksum((u_short *)inet_ntoa(packet.src_addr), 1);
+			u_short checkData = cksum((u_short *)packet.data, 1);
+			u_short checksum = checkVersion + checkDestIp + checkSrcIp + checkData;
+			if (prev_checksum != checksum) {
+				fprintf(stderr, "[ERROR: checksum does not match!]");
+			}
+		}
         }
 }
 
