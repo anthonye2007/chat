@@ -107,13 +107,9 @@ void server() {
 				strcpy(packet.data, emptyStr);
 				strcpy(packet.data, buf);
 
-				int bytesInPacket = 236;
-				//fprintf(stdout, " Sending message to %s\n", inet_ntoa(packet.dest_addr));
-				//fprintf(stdout, " Sending message from %s\n", inet_ntoa(packet.src_addr));
+			        send(new_s, &packet, sizeof(packet), 0);
 
-			        send(new_s, &packet, bytesInPacket + 1, 0);
-
-				//strcpy(packet.data, emptyStr);
+				strcpy(packet.data, emptyStr);
 			}
 		}
         }
