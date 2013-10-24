@@ -1,15 +1,16 @@
 Anthony Elliott
 Networking
-9/20/2013
+9/23/2013
 
 Files:
  - chat.c -- source code that combines the simple-talk client and server
+ - badChat.c -- exact same code as chat.c except includes a bad checksum
  - Makefile -- used to compile the source code
  - README -- this file
 
 Compilation Instructions:
 Navigate to correct directory after unzipping the files and run `make`.
-This will generate an executable called chat.
+This will generate executables called chat and badChat.
 There are some warnings from the compiler but no errrors.
 
 How to run:
@@ -17,10 +18,14 @@ Type `./chat` to run the executable in server mode.
 Type `./chat -s hostname -p 1234` where hostname is the hostname or IP
 address of the server and 1234 is the port number.
 
+To test the bad checksum version:
+Type `./badChat` to run the executable in server mode.
+Type `./badChat -s hostname -p 1234` where hostname is the hostname or IP
+address of the server and 1234 is the port number.
+
 Challenges:
-My main challenge was having to think about the low-level things again.
-It was also difficult to work in a different environment, but is a
-useful skill to know.
-THANK YOU FOR INSTALLING GIT!!
- (although I didn't realize it was installed until I was done, but hey,
- at least I have it commited for next time:) )
+I had accidently hardcoded the size of the packet in send() which was
+causing my client to skip a receive cycle and screwed everything up.
+I also had complications with computing the checksum. The logic
+seemed fine to me but I had a hard time getting the data types right. 
+
