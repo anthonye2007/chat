@@ -216,17 +216,9 @@ struct in_addr getIP() {
 	struct in_addr my_in_addr;
 
 	gethostname(hostname, sizeof hostname);
-	
 	he = gethostbyname(hostname);
-	
-/*	if (he == NULL) {
-		herror("gethostbyhame");
-		return (struct in_addr)NULL;
-	}*/
-
 	my_in_addr = *(struct in_addr*)he->h_addr;
 	
-	//printf("IP address: %s\n", inet_ntoa(my_in_addr));
 	return my_in_addr;
 }
 
