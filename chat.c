@@ -120,10 +120,9 @@ void server() {
 void client(char * argv[]) {
 	struct hostent *hp;
         struct sockaddr_in sin;
-        struct sockaddr_in socketToListen;
         char *host;
         char buf[MAX_LINE];
-        int s, s_listenNum, new_s;
+        int s;
         int len;
 	long int portNum;
 	struct chat_packet packet;
@@ -161,6 +160,7 @@ void client(char * argv[]) {
         sin.sin_family = AF_INET;
         bcopy(hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
         sin.sin_port = htons(portNum);
+
         /* active open */
         if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
                 perror("simplex-talk: socket");
@@ -172,59 +172,36 @@ void client(char * argv[]) {
                 exit(1);
         }
 
-        /* build address data structure */
-  /*      bzero((char *)&socketToListen, sizeof(socketToListen));
-        socketToListen.sin_family = AF_INET;
-        socketToListen.sin_addr.s_addr = INADDR_ANY;
-        socketToListen.sin_port = htons(SERVER_PORT+1);
-*/	
-        /* setup passive open */
-/*        if ((s_listenNum = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-                perror("simplex-talk: socket");
-                exit(1);
-        }
-        if ((bind(s_listenNum, (struct sockaddr *)&socketToListen, sizeof(socketToListen))) < 0) {
-                perror("simplex-talk: bind");
-                exit(1);
-        }
-	
-        listen(s_listenNum, MAX_PENDING);
-*/
 	fprintf(stdout, "Connected!\nYou send first.\n");
 	fprintf(stdout, "IP address of server: %s\n", inet_ntoa(sin.sin_addr));
 
 	/* main loop: get and send lines of text */
         while (1) {
 		fprintf(stdout, "Start of loop\n");
-		if (fgets(buf, sizeof(buf), stdin)) {
-		fprintf(stdout, "Caught input\n");
-		packet.dest_addr = sin.sin_addr;
-		packet.src_addr = getIP();
 
-                buf[MAX_LINE-1] = '\0';
-                len = strlen(buf) + 1;
-		if (len > 142) {
-			fprintf(stderr, "Error: limit messages to 140 characters\n");
-		} else {
-			fprintf(stdout, "Message caught\n");
-			strcpy(packet.data, buf);
-			int bytesInPacket = 236;
-                	send(s, &packet, bytesInPacket + 1, 0);
-			strcpy(packet.data, emptyStr);
-			fprintf(stdout, "Message sent\n");
-		}
+		/* Send */
+		if (fgets(buf, sizeof(buf), stdin)) {
+			fprintf(stdout, "Caught input\n");
+			packet.dest_addr = sin.sin_addr;
+			packet.src_addr = getIP();
+
+                	buf[MAX_LINE-1] = '\0';
+                	len = strlen(buf) + 1;
+			if (len > 142) {
+				fprintf(stderr, "Error: limit messages to 140 characters\n");
+			} else {
+				fprintf(stdout, "Message caught\n");
+				strcpy(packet.data, buf);
+				int bytesInPacket = 236;
+                		send(s, &packet, bytesInPacket + 1, 0);
+				strcpy(packet.data, emptyStr);
+				fprintf(stdout, "Message sent\n");
+			}
 		}
 
 		/* Recieve */
 		fprintf(stdout, "Waiting to receive\n");	
-        	/*if ((new_s = accept(s_listenNum, (struct sockaddr *)&socketToListen, &len)) < 0) {
-              		perror("simplex-talk: accept");
-			exit(1);
-        	} else {
-			fprintf(stdout, "Accepted.\n");
-		}
-		fprintf(stdout, "Received\n");
-*/
+
        		if ((len = recv(s, &packet, sizeof(packet), 0))) {
                 	fputs(packet.data, stdout);
 		}
