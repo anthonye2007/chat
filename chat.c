@@ -17,9 +17,9 @@
 #include <sys/unistd.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <stdio.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdint.h>
 
 #define SERVER_PORT 7733 
 #define MAX_PENDING 5
@@ -27,6 +27,7 @@
 
 void server();
 void client(char * argv[]);
+u_short cksum(u_short *buf, int count);
 struct in_addr getIP();
 
 int main(int argc, char * argv[])
@@ -189,6 +190,21 @@ void client(char * argv[]) {
 			} else {
 				strcpy(packet.data, buf);
 
+				/* Calculate checksum */
+				// need version, dest ip, src ip, data
+			//char version[strlen(packet.version)] = packet.version;
+				//char setup[255] = strcat(packet.version, strcat(inet_ntoa(packet.dest_addr), strcat(inet_ntoa(packet.src_addr), packet.data)));
+
+				char versionStr[15] = "";
+				sprintf(versionStr, "%d", ntohs(packet.version));
+				u_short checkVersion = cksum((u_short *)versionStr, 1);
+				u_short checkDestIp = cksum((u_short *)inet_ntoa(packet.dest_addr), 1);
+
+				u_short checkSrcIp = cksum((u_short *)inet_ntoa(packet.src_addr), 1);
+
+				u_short checkData = cksum((u_short *)packet.data, 1);
+				u_short checksum = checkVersion + checkDestIp + checkSrcIp + checkData;
+				fprintf(stdout, "Checksum: 0x%x\n", checksum);
                 		send(s, &packet, sizeof(packet), 0);
 
 				strcpy(packet.data, emptyStr);
@@ -215,5 +231,22 @@ struct in_addr getIP() {
 	my_in_addr = *(struct in_addr*)he->h_addr;
 	
 	return my_in_addr;
+}
+
+u_short cksum(u_short *buf, int count)
+{
+        register u_long sum=0;
+
+        while (count--) {
+                sum += *buf++;
+                if (sum & 0xFFFF0000)
+                {
+                        /* carry occured, so wrap around */
+                        sum &= 0xFFFF;
+                        sum++;
+                }
+        }
+
+        return ~(sum & 0xFFFF);
 }
 
