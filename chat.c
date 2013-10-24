@@ -86,17 +86,15 @@ void server() {
 	fprintf(stdout, "Found connection!\n");
 
         while(1) {
-		/* Recieve */
-		fprintf(stdout, "Friend: ");
 
+		/* Recieve */
         	if ((len = recv(new_s, &packet, sizeof(packet), 0))) {
-			//fprintf(stdout, "Got new message\n");
+			fprintf(stdout, "Friend: ");
                 	fputs(packet.data, stdout);
 		}
 
-		/* Send */
 		fprintf(stdout, "You: ");
-
+		/* Send */
 		if (fgets(buf, sizeof(buf), stdin)) {
 			packet.dest_addr = packet.src_addr;
 			packet.src_addr = getIP();
@@ -108,12 +106,14 @@ void server() {
 			} else {
 				strcpy(packet.data, emptyStr);
 				strcpy(packet.data, buf);
+
 				int bytesInPacket = 236;
-				fprintf(stdout, " Sending message to %s\n", inet_ntoa(packet.dest_addr));
-				fprintf(stdout, " Sending message from %s\n", inet_ntoa(packet.src_addr));
+				//fprintf(stdout, " Sending message to %s\n", inet_ntoa(packet.dest_addr));
+				//fprintf(stdout, " Sending message from %s\n", inet_ntoa(packet.src_addr));
+
 			        send(new_s, &packet, bytesInPacket + 1, 0);
+
 				//strcpy(packet.data, emptyStr);
-				//fprintf(stdout, "Message sent\n");
 			}
 		}
         }
@@ -183,7 +183,6 @@ void client(char * argv[]) {
 
 		/* Send */
 		if (fgets(buf, sizeof(buf), stdin)) {
-			//fprintf(stdout, "Caught input\n");
 			packet.dest_addr = sin.sin_addr;
 			packet.src_addr = getIP();
 
@@ -192,20 +191,17 @@ void client(char * argv[]) {
 			if (len > 142) {
 				fprintf(stderr, "Error: limit messages to 140 characters\n");
 			} else {
-				//fprintf(stdout, "Message caught\n");
 				strcpy(packet.data, buf);
-				//int bytesInPacket = 236;
-				fprintf(stdout, " Packet bytes: %lu\n", sizeof(packet));
+
                 		send(s, &packet, sizeof(packet), 0);
+
 				strcpy(packet.data, emptyStr);
-				//fprintf(stdout, "Message sent\n");
 			}
 		}
 
 		/* Recieve */
-		fprintf(stdout, "Friend: ");	
-
        		if ((len = recv(s, &packet, sizeof(packet), 0))) {
+			fprintf(stdout, "Friend: ");	
                 	fputs(packet.data, stdout);
 		}
 
