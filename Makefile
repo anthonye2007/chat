@@ -1,4 +1,4 @@
-PROGRAMS = chat
+PROGRAMS = chat badChat
 CFLAGS = -Wall -Wextra -std=gnu99
 CC = gcc
 
