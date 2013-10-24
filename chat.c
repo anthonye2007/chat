@@ -87,15 +87,15 @@ void server() {
 
         while(1) {
 		/* Recieve */
-		fprintf(stdout, "Waiting to receive\n");
+		fprintf(stdout, "Friend: ");
 
         	if ((len = recv(new_s, &packet, sizeof(packet), 0))) {
-			fprintf(stdout, "Got new message\n");
+			//fprintf(stdout, "Got new message\n");
                 	fputs(packet.data, stdout);
 		}
 
 		/* Send */
-		fprintf(stdout, "Waiting to send\n");
+		fprintf(stdout, "You: ");
 
 		if (fgets(buf, sizeof(buf), stdin)) {
 			packet.dest_addr = packet.src_addr;
@@ -109,11 +109,11 @@ void server() {
 				strcpy(packet.data, emptyStr);
 				strcpy(packet.data, buf);
 				int bytesInPacket = 236;
-				fprintf(stdout, "Sending message to %s\n", inet_ntoa(packet.dest_addr));
-				fprintf(stdout, "Sending message from %s", inet_ntoa(packet.src_addr));
+				fprintf(stdout, " Sending message to %s\n", inet_ntoa(packet.dest_addr));
+				fprintf(stdout, " Sending message from %s\n", inet_ntoa(packet.src_addr));
 			        send(new_s, &packet, bytesInPacket + 1, 0);
 				//strcpy(packet.data, emptyStr);
-				fprintf(stdout, "Message sent\n");
+				//fprintf(stdout, "Message sent\n");
 			}
 		}
         }
@@ -174,12 +174,12 @@ void client(char * argv[]) {
                 exit(1);
         }
 
-	fprintf(stdout, "Connected!\nYou send first.\n");
+	fprintf(stdout, "Connected!\n");
 	fprintf(stdout, "IP address of server: %s\n", inet_ntoa(sin.sin_addr));
 
 	/* main loop: get and send lines of text */
         while (1) {
-		fprintf(stdout, "Waiting to send\n");
+		fprintf(stdout, "You: ");
 
 		/* Send */
 		if (fgets(buf, sizeof(buf), stdin)) {
@@ -195,7 +195,7 @@ void client(char * argv[]) {
 				//fprintf(stdout, "Message caught\n");
 				strcpy(packet.data, buf);
 				//int bytesInPacket = 236;
-				fprintf(stdout, "Packet bytes: %lu\n", sizeof(packet));
+				fprintf(stdout, " Packet bytes: %lu\n", sizeof(packet));
                 		send(s, &packet, sizeof(packet), 0);
 				strcpy(packet.data, emptyStr);
 				//fprintf(stdout, "Message sent\n");
@@ -203,7 +203,7 @@ void client(char * argv[]) {
 		}
 
 		/* Recieve */
-		fprintf(stdout, "Waiting to receive\n");	
+		fprintf(stdout, "Friend: ");	
 
        		if ((len = recv(s, &packet, sizeof(packet), 0))) {
                 	fputs(packet.data, stdout);
